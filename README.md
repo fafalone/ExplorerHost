@@ -52,6 +52,8 @@ The whole thing is very simple to set up; creating an ExplorerBrowser goes like 
     pEBrowse.Advise cSink, lpck
     pEBrowse.BrowseToIDList pidlt, SBSP_ABSOLUTE 'if you want to use the desktop, for its own sake, or want a quick substitute
                                                  'for not having C:\ , instead of pidlt use VarPtr(0) -NOT just 0.
-    ```
-    
+```
+
+
+While you can do a bit of customization with these controls, it's a bit limited. If you want a high level of customization and additional features, you can check out [my ShellControls project](https://github.com/fafalone/ShellControls), the twinBASIC port of my ucShellTree and ucShellBrowse controls.
     
