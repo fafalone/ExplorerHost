@@ -1,0 +1,132 @@
+[ FormDesignerId ("DDB21AE5-255D-41F1-969D-1820DEDBFD85") ]
+[ ClassId ("D06C0AAA-47C0-4B90-B06C-9F01C98502C8") ]
+[ InterfaceId ("1FE799EB-0B92-4FC6-B214-ED7B5A0F19F3") ]
+[ EventInterfaceId ("DA74500B-DA8C-4A0A-9EC5-0418FC69007D") ]
+Class frmBasic
+    Attribute VB_Name = "frmBasic"
+    Attribute VB_GlobalNameSpace = False
+    Attribute VB_Creatable = False
+    Attribute VB_PredeclaredId = True
+    Attribute VB_Exposed = False
+    Option Explicit
+    
+    Private pEBrowse As ExplorerBrowser
+    Private cSink As New cBrowserEvents
+    Private pidlt As LongPtr
+    Private lpck As Long
+    
+    Private Sub Command1_Click()
+    Dim hr As Long
+    Dim sOut As String
+    Dim pIDO As IDataObject
+    Dim psv As IShellView
+    Dim fmt As FORMATETC
+    Dim stg As STGMEDIUM
+    Dim hDrop As LongPtr
+    Dim uNumFiles As Long
+    Dim i As Long
+    Dim Filename As String
+    
+    pEBrowse.GetCurrentView IID_IShellView, psv
+    If (psv Is Nothing) Then
+        Debug.Print "Failed to created IShellView"
+        Exit Sub
+    End If
+    
+    psv.GetItemObject SVGIO_SELECTION, IID_IDataObject, pIDO
+    If (pIDO Is Nothing) Then
+        Debug.Print "Failed to create IDataObject"
+        Exit Sub
+    End If
+    
+    
+    fmt.cfFormat = CF_HDROP
+    fmt.dwAspect = DVASPECT_CONTENT
+    fmt.lIndex = -1
+    fmt.TYMED = TYMED_HGLOBAL
+    stg.TYMED = TYMED_HGLOBAL
+    
+    hr = pIDO.GetData(fmt, stg)
+    Debug.Print "GetData hr=" & hr
+    
+    hDrop = GlobalLock(stg.data)
+    
+    uNumFiles = DragQueryFile(hDrop, &HFFFFFFFF, "", 0)
+    Debug.Print "got nfiles=" & uNumFiles
+    For i = 0 To (uNumFiles - 1)
+        Filename = String$(260, 0)
+        Call DragQueryFile(hDrop, i, Filename, Len(Filename))
+        If (InStr(Filename, vbNullChar)) > 1 Then
+            Filename = Left$(Filename, InStr(Filename, vbNullChar) - 1)
+            Debug.Print "filename=" & Filename
+            sOut = sOut & Filename & ", "
+        End If
+    Next i
+    Debug.Print "output=" & sOut
+    Text1.Text = sOut
+    Call GlobalUnlock(stg.data)
+    ReleaseStgMedium VarPtr(stg)
+    End Sub
+    
+    Private Sub Form_Load()
+    Dim prc As RECT
+    Dim pfs As FOLDERSETTINGS
+    Dim sPath As String
+    Dim lFlag As EXPLORER_BROWSER_OPTIONS
+    If Form1.Check1.Value = vbChecked Then
+        lFlag = EBO_SHOWFRAMES
+    Else
+        lFlag = EBO_NONE
+    End If
+    sPath = "C:\"
+    pidlt = ILCreateFromPathW(StrPtr(sPath))
+    
+    pfs.fFlags = FWF_ALIGNLEFT
+    pfs.ViewMode = FVM_DETAILS
+    prc.Top = 0
+    prc.Bottom = (Me.Height / 15) - 97
+    prc.Left = 0
+    prc.Right = (Me.Width / 15) - 16
+    
+    Set pEBrowse = New ExplorerBrowser
+    pEBrowse.Initialize Me.hWnd, prc, pfs
+    pEBrowse.SetOptions lFlag
+    pEBrowse.Advise cSink, lpck
+    pEBrowse.BrowseToIDList pidlt, SBSP_ABSOLUTE 'if you want to use the desktop, for its own sake, or want a quick substitute
+                                                 'for not having C:\ , instead of pidlt use VarPtr(0) -NOT just 0.
+    
+    End Sub
+    
+    Private Sub Form_Resize()
+    Dim hr As Long
+    
+    Dim prc As RECT
+    Dim lpph As LongPtr
+    prc.Top = 0
+    prc.Bottom = (Me.Height / 15) - 97
+    prc.Left = 0
+    prc.Right = (Me.Width / 15) - 16
+    #If Win64 Then
+    hr = pEBrowse.SetRect(lpph, prc)
+    #Else
+    hr = pEBrowse.SetRect(lpph, prc.Left, prc.Top, prc.Right, prc.Bottom)    
+    #End If
+
+    'Debug.Print "hr=" & hr
+    Command1.Top = Me.Height - 1200
+    Text1.Top = Me.Height - 1330
+    List1.Width = Me.Width - 6510
+    List1.Top = Me.Height - 1330
+    End Sub
+    
+    Private Sub Form_Unload(Cancel As Integer)
+    pEBrowse.Unadvise lpck
+    If (pEBrowse Is Nothing) = False Then
+        pEBrowse.Destroy
+    End If
+    Call CoTaskMemFree(pidlt)
+    End Sub
+    
+    
+
+End Class

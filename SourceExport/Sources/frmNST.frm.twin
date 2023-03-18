@@ -1,0 +1,106 @@
+[ FormDesignerId ("4902BE41-BBE9-4E26-BFEE-A1E3208833BF") ]
+[ ClassId ("71B96703-119B-4942-A009-0AFCA7D0B4F7") ]
+[ InterfaceId ("CB346D7D-E203-43EE-A838-C1FD5A62E756") ]
+[ EventInterfaceId ("4627E2F9-A486-400C-B0AE-12A20F4DCA4A") ]
+Class frmNST
+    Attribute VB_Name = "frmNST"
+    Attribute VB_GlobalNameSpace = False
+    Attribute VB_Creatable = False
+    Attribute VB_PredeclaredId = True
+    Attribute VB_Exposed = False
+    Option Explicit
+    
+    Private pNST As NamespaceTreeControl
+    Private pUnkAdv As IUnknownUnrestricted
+    Private lpck As Long
+    Private mhwnd As LongPtr
+    
+    Private Sub Command1_Click()
+    Dim pisia As IShellItemArray
+    Dim lpName As LongPtr, sName As String
+    Dim iesi As IEnumShellItems
+    Dim psi As IShellItem
+    pNST.GetSelectedItems pisia
+    pisia.EnumItems iesi
+    
+    Do While (iesi.Next(1, psi, 0) = NOERROR)
+    
+        psi.GetDisplayName SIGDN_FILESYSPATH, lpName
+        sName = sName & LPWSTRtoStr(lpName) & ", "
+        Set psi = Nothing
+    Loop
+    
+    Debug.Print "SelectedItems=" & sName
+    Text1.Text = sName
+    Set iesi = Nothing
+    End Sub
+    
+    Private Sub Form_Load()
+    Dim lFlag As NSTCSTYLE
+    Dim prc As RECT
+    Dim isiDesk As IShellItem
+    Dim lpTest As Long
+    Dim pif As IShellItemFilter
+    Dim pAdv As cNSTEvents
+    
+    Call SHCreateItemFromIDList(VarPtr(0), IID_IShellItem, isiDesk) 'VarPtr(0) is a handy drop in as the Desktop's pidl
+    isiDesk.GetAttributes SFGAO_BROWSABLE Or SFGAO_FOLDER Or SFGAO_FILESYSTEM, lpTest
+    Debug.Print "lpTest=" & lpTest
+    
+    
+    lFlag = NSTCS_ALLOWJUNCTIONS 'Or NSTCS_SINGLECLICKEXPAND Or NSTCS_BORDER
+    If Form1.Check2.Value = vbChecked Then
+        lFlag = lFlag Or NSTCS_FADEINOUTEXPANDOS Or NSTCS_HASEXPANDOS
+    End If
+    If Form1.Check3.Value = vbChecked Then
+        lFlag = lFlag Or NSTCS_HASLINES
+    End If
+    If Form1.Check4.Value = vbChecked Then
+        lFlag = lFlag Or NSTCS_HORIZONTALSCROLL
+    End If
+    If Form1.Check5.Value = vbChecked Then
+        lFlag = lFlag Or NSTCS_CHECKBOXES
+    End If
+    If Form1.Check6.Value = vbChecked Then
+        lFlag = lFlag Or NSTCS_PARTIALCHECKBOXES
+    End If
+    If Form1.Check7.Value = vbChecked Then
+        lFlag = lFlag Or NSTCS_ROOTHASEXPANDO
+    End If
+    
+    prc.Top = 0
+    prc.Bottom = (Me.Height / 15) - 20
+    prc.Left = 5
+    prc.Right = 262
+    
+    Set pNST = New NamespaceTreeControl
+    pNST.Initialize Me.hWnd, prc, lFlag
+    Set pAdv = New cNSTEvents
+    Set pUnkAdv = pAdv
+    pNST.TreeAdvise pUnkAdv, lpck
+    pNST.InsertRoot 0, isiDesk, SHCONTF_FOLDERS, NSTCRS_EXPANDED Or NSTCRS_VISIBLE, pif
+    Dim pWin As IOleWindow
+    Set pWin = pNST
+    If (pWin IsNot Nothing) Then
+        mhwnd = pWin.GetWindow()
+        Debug.Print "Got hwnd"
+    Else
+        Debug.Print "Couldn't get IOleWindow"
+    End If
+    End Sub
+    
+    Private Sub Form_Resize()
+    List1.Width = Me.Width - 4380
+    Text1.Width = Me.Width - 4380
+    SetWindowPos mhwnd, 0, 0, 0, 257, (Me.Height / Screen.TwipsPerPixelY) - 20, SWP_NOMOVE Or SWP_NOZORDER
+    End Sub
+    
+    Private Sub Form_Unload(Cancel As Integer)
+    If (pUnkAdv Is Nothing) = False Then
+        pNST.TreeUnadvise lpck
+    End If
+    Set pNST = Nothing
+    End Sub
+    
+
+End Class
