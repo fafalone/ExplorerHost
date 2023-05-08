@@ -5,6 +5,8 @@ This is a [twinBASIC](https://github.com/twinbasic/twinbasic) version of the fol
 
 [[VB6, Vista+] Host Windows Explorer on your form: navigation tree and/or folder](https://www.vbforums.com/showthread.php?798633-VB6-Vista-Host-Windows-Explorer-on-your-form-navigation-tree-and-or-folder)
 
+**Update:** On 08 May 2023 the source was updated just to change the dependency version: tbShellLib had Optional UDTs, which are not allowed. Previously, nothing would happen unless you actually tried to use one without supplying it, but in more recent versions, this is flagged as an error before compiling, preventing that from happening. If you get this error in other projects using tbShellLib, or don't want to re-DL the source here, just update tbShellLib to the newest version. 
+
 IExplorerBrowser is an easy to use, more complete version of IShellView (in fact, it has an IShellView at its core that you can access) that lets you have a complete Explorer frame on your form, with very little code. You can either have just a plain file view, or with a navigation tree and toolbar. It uses all the same settings and does all the same things as Explorer, and your program can interact with those actions to do things like browse for files, or be the basis of a namespace extension.
 The only complication is that there's no event notifying of an individual file selection within the view, and getting a list of selected files is fairly complex- however there is a function to do it in the demo project.
 
