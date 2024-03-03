@@ -5,6 +5,8 @@ This is a [twinBASIC](https://github.com/twinbasic/twinbasic) version of the fol
 
 [[VB6, Vista+] Host Windows Explorer on your form: navigation tree and/or folder](https://www.vbforums.com/showthread.php?798633-VB6-Vista-Host-Windows-Explorer-on-your-form-navigation-tree-and-or-folder)
 
+**Update (03 Mar 2024):** .twinproj updated to reference WinDevLib (formerly tbShellLib) 7.6.325-- this eliminates package errors that tB did not raise at the time this project was initially released.
+
 **Update (19 Dec 2023):** .twinproj updated to reference WinDevLib (formerly tbShellLib) 7.0-- this eliminates package errors that tB did not raise at the time this project was initially released.
 
 **Update:** On 08 May 2023 the source was updated just to change the dependency version: tbShellLib had Optional UDTs, which are not allowed. Previously, nothing would happen unless you actually tried to use one without supplying it, but in more recent versions, this is flagged as an error before compiling, preventing that from happening. If you get this error in other projects using tbShellLib, or don't want to re-DL the source here, just update tbShellLib to the newest version. 
