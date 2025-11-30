@@ -1,0 +1,257 @@
+[FormDesignerId("4902BE41-BBE9-4E26-BFEE-A1E3208833BF")]
+[ClassId("71B96703-119B-4942-A009-0AFCA7D0B4F7")]
+[InterfaceId("CB346D7D-E203-43EE-A838-C1FD5A62E756")]
+[EventInterfaceId("4627E2F9-A486-400C-B0AE-12A20F4DCA4A")]
+Class frmNST
+    Attribute VB_Name = "frmNST"
+    Attribute VB_GlobalNameSpace = False
+    Attribute VB_Creatable = False
+    Attribute VB_PredeclaredId = True
+    Attribute VB_Exposed = False
+    Option Explicit
+    
+    'Update (11/30/2025)
+    '-Update for tB 896+/WDL 9.2+
+    '-Implement CheckBox support
+    '-Move event handling to this form for easier access to NamespaceTreeControl object
+    '-Bug fix: GetToolTip event pszText argument should be ByVal
+    
+    Private pNST As NamespaceTreeControl
+    Private lpck As Long
+    Private mhwnd As LongPtr
+    Private lFlag As NSTCSTYLE
+    Implements INameSpaceTreeControlEvents
+
+    Public Sub INameSpaceTreeControlEvents_OnItemClick(ByVal psi As IShellItem, ByVal nstceHitTest As NSTCEHITTEST, ByVal nstceClickType As NSTCECLICKTYPE)
+    'MSDN does not make it entirely clear; not returning a non-zero
+    'results in not being able to click the arrows to expand a node
+    Dim lpsz As LongPtr
+    psi.GetDisplayName SIGDN_NORMALDISPLAY, lpsz
+
+    frmNST.List1.AddItem "OnItemClick " & LPWSTRtoStr(lpsz), 0
+    If (nstceHitTest And NSTCEHT_ONITEMSTATEICON) = NSTCEHT_ONITEMSTATEICON Then
+        Dim state As Long
+        pNST.GetItemCustomState(psi, state)
+        If state = 1 Then
+            state = 2
+        ElseIf state = 2 Then
+            If (lFlag And NSTCS_PARTIALCHECKBOXES) = NSTCS_PARTIALCHECKBOXES Then
+                state = 3 'does not appear to work on Win10
+            Else
+                state = 1
+            End If
+        ElseIf state = 3 Then
+            state = 1
+        End If
+        pNST.SetItemCustomState(psi, state)
+    End If
+    Err.ReturnHResult = 1
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnPropertyItemCommit(ByVal psi As IShellItem)
+    Dim lpsz As LongPtr
+    psi.GetDisplayName SIGDN_NORMALDISPLAY, lpsz
+
+    frmNST.List1.AddItem "OnPropertyItemCommit " & LPWSTRtoStr(lpsz), 0
+
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnItemStateChanging(ByVal psi As IShellItem, ByVal nstcisMask As NSTCITEMSTATE, ByVal nstcisState As NSTCITEMSTATE)
+    Dim lpsz As LongPtr
+    psi.GetDisplayName SIGDN_NORMALDISPLAY, lpsz
+
+    frmNST.List1.AddItem "OnItemStateChanging " & LPWSTRtoStr(lpsz), 0
+
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnItemStateChanged(ByVal psi As IShellItem, ByVal nstcisMask As NSTCITEMSTATE, ByVal nstcisState As NSTCITEMSTATE)
+    Dim lpsz As LongPtr
+    psi.GetDisplayName SIGDN_NORMALDISPLAY, lpsz
+
+    frmNST.List1.AddItem "OnItemStateChanged " & LPWSTRtoStr(lpsz), 0
+
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnSelectionChanged(ByVal psiaSelection As IShellItemArray)
+
+
+    Dim lpName As LongPtr, sName As String
+    Dim iesi As IEnumShellItems
+    Dim psi As IShellItem
+    psiaSelection.EnumItems iesi
+
+    Do While (iesi.Next(1, psi, 0) = NOERROR)
+
+        psi.GetDisplayName SIGDN_FILESYSPATH, lpName
+        sName = sName & LPWSTRtoStr(lpName) & ", "
+        Set psi = Nothing
+    Loop
+
+    frmNST.List1.AddItem "OnSelectionChanged " & sName, 0
+    Set iesi = Nothing
+
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnKeyboardInput(ByVal uMsg As Long, ByVal wParam As LongPtr, ByVal lParam As LongPtr)
+    frmNST.List1.AddItem "OnKeyboardInput"
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnBeforeExpand(ByVal psi As IShellItem)
+    Dim lpsz As LongPtr
+    psi.GetDisplayName SIGDN_FILESYSPATH, lpsz
+
+    frmNST.List1.AddItem "OnBeforeExpand " & LPWSTRtoStr(lpsz), 0
+
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnAfterExpand(ByVal psi As IShellItem)
+    Dim lpsz As LongPtr
+    psi.GetDisplayName SIGDN_FILESYSPATH, lpsz
+    frmNST.List1.AddItem "OnAfterExpand " & LPWSTRtoStr(lpsz), 0
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnBeginLabelEdit(ByVal psi As IShellItem)
+    Dim lpsz As LongPtr
+    psi.GetDisplayName SIGDN_FILESYSPATH, lpsz
+    frmNST.List1.AddItem "OnBeginLabelEdit " & LPWSTRtoStr(lpsz), 0
+
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnEndLabelEdit(ByVal psi As IShellItem)
+    Dim lpsz As LongPtr
+    psi.GetDisplayName SIGDN_FILESYSPATH, lpsz
+    frmNST.List1.AddItem "OnEndLabelEdit " & LPWSTRtoStr(lpsz), 0
+
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnGetToolTip(ByVal psi As IShellItem, ByVal pszTip As LongPtr, ByVal cchTip As Long)
+    Err.ReturnHResult = E_NOTIMPL
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnBeforeItemDelete(ByVal psi As IShellItem)
+    Dim lpsz As LongPtr
+    psi.GetDisplayName SIGDN_FILESYSPATH, lpsz
+    frmNST.List1.AddItem "OnBeforeItemDelete " & LPWSTRtoStr(lpsz), 0
+
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnItemAdded(ByVal psi As IShellItem, ByVal fIsRoot As BOOL)
+    Dim lpsz As LongPtr
+    psi.GetDisplayName SIGDN_FILESYSPATH, lpsz
+    frmNST.List1.AddItem "OnItemAdded " & LPWSTRtoStr(lpsz), 0
+
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnItemDeleted(ByVal psi As IShellItem, ByVal fIsRoot As BOOL)
+    Dim lpsz As LongPtr
+    psi.GetDisplayName SIGDN_FILESYSPATH, lpsz
+    frmNST.List1.AddItem "OnItemDeleted " & LPWSTRtoStr(lpsz), 0
+
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnBeforeContextMenu(ByVal psi As IShellItem, riid As UUID, ppv As LongPtr)
+    Dim lpsz As LongPtr
+    psi.GetDisplayName SIGDN_FILESYSPATH, lpsz
+    frmNST.List1.AddItem "OnBeforeContextMenu " & LPWSTRtoStr(lpsz), 0
+    Err.ReturnHResult = E_NOTIMPL
+
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnAfterContextMenu(ByVal psi As IShellItem, ByVal pcmIn As IContextMenu, riid As UUID, ppv As LongPtr)
+    Dim lpsz As LongPtr
+    psi.GetDisplayName SIGDN_FILESYSPATH, lpsz
+    frmNST.List1.AddItem "OnAfterContextMenu " & LPWSTRtoStr(lpsz), 0
+    Err.ReturnHResult = E_NOTIMPL
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnBeforeStateImageChange(ByVal psi As IShellItem)
+
+    End Sub
+    Public Sub INameSpaceTreeControlEvents_OnGetDefaultIconIndex(ByVal psi As IShellItem, piDefaultIcon As Long, piOpenIcon As Long)
+    Err.ReturnHResult = E_NOTIMPL
+    'NOTE: This function is completely undocumented, there's not even an entry on MSDN
+    'This function must return -1, or you must look up the icon index yourself.
+    'Returning -1 is impossible without a v-table swap, which this project shows
+    'If you did not want to do that, delete the SwapVTable entry for this function
+    'and use the code below to get the correct icon index (also do a proper lookup for open)
+
+    'Dim ppidl As Long
+    'Dim pUnk As oleexp.IUnknown
+    'Set pUnk = psi
+    'Call SHGetIDListFromObject(ObjPtr(pUnk), ppidl)
+    'If ppidl Then
+    '    piDefaultIcon = GetFileIconIndexPIDL(ppidl, SHGFI_SMALLICON)
+    '    piOpenIcon = piDefaultIcon
+    'End If
+    'Call CoTaskMemFree(ppidl)
+    End Sub
+    
+    Private Sub Command1_Click()
+    Dim pisia As IShellItemArray
+    Dim lpName As LongPtr, sName As String
+    Dim iesi As IEnumShellItems
+    Dim psi As IShellItem
+    pNST.GetSelectedItems pisia
+    pisia.EnumItems iesi
+    
+    Do While (iesi.Next(1, psi, 0) = NOERROR)
+    
+        psi.GetDisplayName SIGDN_FILESYSPATH, lpName
+        sName = sName & LPWSTRtoStr(lpName) & ", "
+        Set psi = Nothing
+    Loop
+    
+    Debug.Print "SelectedItems=" & sName
+    Text1.Text = sName
+    Set iesi = Nothing
+    End Sub
+    
+    Private Sub Form_Load()
+    Dim prc As RECT
+    Dim isiDesk As IShellItem
+    Dim lpTest As Long
+    Dim pif As IShellItemFilter
+    
+    Call SHCreateItemFromIDList(VarPtr(0), IID_IShellItem, isiDesk) 'VarPtr(0) is a handy drop in as the Desktop's pidl
+    isiDesk.GetAttributes SFGAO_BROWSABLE Or SFGAO_FOLDER Or SFGAO_FILESYSTEM, lpTest
+    Debug.Print "lpTest=" & lpTest
+    
+    
+    lFlag = NSTCS_ALLOWJUNCTIONS 'Or NSTCS_SINGLECLICKEXPAND Or NSTCS_BORDER
+    If Form1.Check2.Value = vbChecked Then
+        lFlag = lFlag Or NSTCS_FADEINOUTEXPANDOS Or NSTCS_HASEXPANDOS
+    End If
+    If Form1.Check3.Value = vbChecked Then
+        lFlag = lFlag Or NSTCS_HASLINES
+    End If
+    If Form1.Check4.Value = vbChecked Then
+        lFlag = lFlag Or NSTCS_HORIZONTALSCROLL
+    End If
+    If Form1.Check5.Value = vbChecked Then
+        lFlag = lFlag Or NSTCS_CHECKBOXES
+    End If
+    If Form1.Check6.Value = vbChecked Then
+        lFlag = lFlag Or NSTCS_PARTIALCHECKBOXES
+    End If
+    If Form1.Check7.Value = vbChecked Then
+        lFlag = lFlag Or NSTCS_ROOTHASEXPANDO
+    End If
+    
+    prc.Top = 0
+    prc.Bottom = (Me.Height / 15) - 20
+    prc.Left = 5
+    prc.Right = 262
+    
+    Set pNST = New NamespaceTreeControl
+    pNST.Initialize Me.hWnd, prc, lFlag
+    pNST.TreeAdvise Me, lpck
+    pNST.InsertRoot 0, isiDesk, SHCONTF_FOLDERS, NSTCRS_EXPANDED Or NSTCRS_VISIBLE, pif
+    Dim pWin As IOleWindow
+    Set pWin = pNST
+    If (pWin IsNot Nothing) Then
+        mhwnd = pWin.GetWindow()
+        Debug.Print "Got hwnd"
+    Else
+        Debug.Print "Couldn't get IOleWindow"
+    End If
+    End Sub
+    
+    Private Sub Form_Resize()
+    List1.Width = Me.Width - 4380
+    Text1.Width = Me.Width - 4380
+    SetWindowPos mhwnd, 0, 0, 0, 257, (Me.Height / Screen.TwipsPerPixelY) - 20, SWP_NOMOVE Or SWP_NOZORDER
+    End Sub
+    
+    Private Sub Form_Unload(Cancel As Integer)
+    If (pNST Is Nothing) = False Then
+        pNST.TreeUnadvise lpck
+    End If
+    Set pNST = Nothing
+    End Sub
+    
+
+End Class

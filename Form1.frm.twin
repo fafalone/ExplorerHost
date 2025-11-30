@@ -1,0 +1,22 @@
+[ FormDesignerId ("1C5AE294-E9DF-43D3-8769-B3CF297CEF2F") ]
+[ ClassId ("CEEECB1A-D25C-47A2-8C06-74E4A1D2A727") ]
+[ InterfaceId ("994DBB0A-B6F2-4D76-880D-B1AEA1C3DF88") ]
+[ EventInterfaceId ("BEE5265A-96C1-486D-B0AA-92D3C636C042") ]
+Class Form1
+    Attribute VB_Name = "Form1"
+    Attribute VB_GlobalNameSpace = False
+    Attribute VB_Creatable = False
+    Attribute VB_PredeclaredId = True
+    Attribute VB_Exposed = False
+    Option Explicit
+    
+    Private Sub Command1_Click()
+    frmBasic.Show
+    End Sub
+    
+    Private Sub Command2_Click()
+    frmNST.Show
+    End Sub
+    
+
+End Class

@@ -1,0 +1,51 @@
+[
+   {
+      "StartUpPosition": 3,
+      "ScaleWidth": 6630,
+      "ScaleHeight": 5715,
+      "LinkTopic": "Form2",
+      "ClientWidth": 6630,
+      "ClientTop": 450,
+      "ClientLeft": 120,
+      "ClientHeight": 5715,
+      "Caption": "INamespaceTree",
+      "_clsid": "{33AD4F38-6699-11CF-B70C-00AA0060D393}",
+      "FormDesignerId": "{4902BE41-BBE9-4E26-BFEE-A1E3208833BF}",
+      "Width":442,
+      "Height":381,
+      "Name":"frmNST",
+      "_children": [      {
+         "Width":92,
+         "Top":10,
+         "TabIndex": 0,
+         "Left":269,
+         "Height":29,
+         "Caption": "List Selection",
+         "_clsid": "{33AD4EF0-6699-11CF-B70C-00AA0060D393}",
+         "_className": "CommandButton",
+         "Name":"Command1"
+      },
+            {
+         "Width":165,
+         "Top":41,
+         "TabIndex": 1,
+         "MultiLine": -1,
+         "Left":271,
+         "Height":113,
+         "_clsid": "{33AD4EE0-6699-11CF-B70C-00AA0060D393}",
+         "_className": "TextBox",
+         "Name":"Text1"
+      },
+            {
+         "Width":166,
+         "Top":170,
+         "TabIndex": 2,
+         "Left":271,
+         "Height":147,
+         "_clsid": "{33AD4F10-6699-11CF-B70C-00AA0060D393}",
+         "_className": "ListBox",
+         "Name":"List1"
+      }
+      ]
+   }
+]
