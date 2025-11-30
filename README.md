@@ -5,6 +5,12 @@ This is a [twinBASIC](https://github.com/twinbasic/twinbasic) version of the fol
 
 [[VB6, Vista+] Host Windows Explorer on your form: navigation tree and/or folder](https://www.vbforums.com/showthread.php?798633-VB6-Vista-Host-Windows-Explorer-on-your-form-navigation-tree-and-or-folder)
 
+**Update (30 Nov 2025):** 
+- Update for tB 896+/WDL 9.2+
+- Implement CheckBox support in NST
+- Move NST event handling to form for easier access to NamespaceTreeControl object
+- Bug fix: NST events GetToolTip event pszText argument should be ByVal
+  
 **Update (03 Mar 2024):** .twinproj updated to reference WinDevLib (formerly tbShellLib) 7.6.325-- this eliminates package errors that tB did not raise at the time this project was initially released.
 
 **Update (19 Dec 2023):** .twinproj updated to reference WinDevLib (formerly tbShellLib) 7.0-- this eliminates package errors that tB did not raise at the time this project was initially released.
